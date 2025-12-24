@@ -1,0 +1,13 @@
+# 先放行所有靜態資源
+/assets/*   /assets/:splat   200
+/*.jpg      /:splat          200
+/*.jpeg     /:splat          200
+/*.png      /:splat          200
+/*.webp     /:splat          200
+/*.svg      /:splat          200
+/*.css      /:splat          200
+/*.js       /:splat          200
+/*.json     /:splat          200
+
+# 最後才是 SPA fallback
+/*          /index.html      200
