@@ -28,6 +28,12 @@ export const TRANSLATIONS: Record<Language, any> = {
       retry: '重試',
       fetchError: '獲取狀態失敗',
       applyError: '套用設定失敗',
+      wg0Title: 'Ghost 中繼站',
+      ssTitle: 'Ghost VPN',
+      securityArea: '安全區域',
+      shadowPc: '影子電腦',
+      ecoApp: '生態應用',
+      comingSoon: 'Coming soon'
     },
     ai: {
       generate: '生成圖片',
@@ -80,6 +86,12 @@ export const TRANSLATIONS: Record<Language, any> = {
       retry: '再試行',
       fetchError: 'ステータスの取得に失敗しました',
       applyError: '設定の適用に失敗しました',
+      wg0Title: 'Ghost リレー',
+      ssTitle: 'Ghost VPN',
+      securityArea: 'セキュリティエリア',
+      shadowPc: 'シャドウコンピュータ',
+      ecoApp: 'エコアプリ',
+      comingSoon: 'Coming soon'
     },
     ai: {
       generate: '画像生成',
@@ -132,6 +144,12 @@ export const TRANSLATIONS: Record<Language, any> = {
       retry: 'ลองใหม่',
       fetchError: 'ไม่สามารถดึงสถานะได้',
       applyError: 'ไม่สามารถนำการตั้งค่าไปใช้ได้',
+      wg0Title: 'Ghost รีเลย์',
+      ssTitle: 'Ghost VPN',
+      securityArea: 'พื้นที่ปลอดภัย',
+      shadowPc: 'คอมพิวเตอร์เงา',
+      ecoApp: 'แอปนิเวศ',
+      comingSoon: 'Coming soon'
     },
     ai: {
       generate: 'สร้างรูปภาพ',
@@ -184,6 +202,12 @@ export const TRANSLATIONS: Record<Language, any> = {
       retry: 'Retry',
       fetchError: 'Failed to fetch status',
       applyError: 'Failed to apply settings',
+      wg0Title: 'Ghost Relay',
+      ssTitle: 'Ghost VPN',
+      securityArea: 'Security Area',
+      shadowPc: 'Shadow Computer',
+      ecoApp: 'Eco Application',
+      comingSoon: 'Coming soon'
     },
     ai: {
       generate: 'Generate Image',

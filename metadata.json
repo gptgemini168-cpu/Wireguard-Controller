@@ -1,5 +1,5 @@
 {
-  "name": "WG Controller",
-  "description": "A comprehensive dashboard for managing WireGuard interfaces and profiles.",
+  "name": "Ghost System",
+  "description": "A comprehensive dashboard for managing WireGuard interfaces and profiles under the Ghost ecosystem.",
   "requestFramePermissions": []
 }
