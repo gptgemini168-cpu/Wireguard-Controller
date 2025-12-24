@@ -1,0 +1,15 @@
+# 1) 靜態資源原路放行
+/assets/*   /assets/:splat   200
+/*.jpg      /:splat          200
+/*.jpeg     /:splat          200
+/*.png      /:splat          200
+/*.webp     /:splat          200
+/*.svg      /:splat          200
+/*.css      /:splat          200
+/*.js       /:splat          200
+/*.json     /:splat          200
+/*.ico      /:splat          200
+/*.txt      /:splat          200
+
+# 2) SPA fallback：只處理「沒有副檔名」的路徑
+/*[^.]*     /index.html      200
