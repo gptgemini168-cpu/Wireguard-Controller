@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Power, RefreshCcw, Save, Server, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Power, RefreshCcw, Save, Server, Globe, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { WireGuardService } from '../services/wgApi';
-import { StatusResponse, Profile, Language } from '../types';
+import { StatusResponse, Profile, Language, WSStatusMessage } from '../types';
 import { TRANSLATIONS } from '../constants/translations';
 
 interface WireGuardControlProps {
@@ -20,55 +20,87 @@ const PROFILE_FLAGS: Record<Profile, string> = {
 const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }) => {
   const t = TRANSLATIONS[language];
   const [status, setStatus] = useState<StatusResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Local state for UI before applying
   const [localSsProfile, setLocalSsProfile] = useState<Profile>('jp');
-  const [service, setService] = useState<WireGuardService>(new WireGuardService(baseUrl));
+  const service = useRef(new WireGuardService(baseUrl));
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    setService(new WireGuardService(baseUrl));
+    service.current = new WireGuardService(baseUrl);
+    connectWebSocket();
+    return () => {
+      wsRef.current?.close();
+    };
   }, [baseUrl]);
 
-  const fetchStatus = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await service.getStatus();
-      setStatus(data);
-      if (data.ss.profile && PROFILES.includes(data.ss.profile as Profile)) {
-        setLocalSsProfile(data.ss.profile as Profile);
-      }
-    } catch (err: any) {
-      setError(err.message || t.control.fetchError);
-    } finally {
-      setLoading(false);
+  const connectWebSocket = useCallback(() => {
+    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/ws/status';
+    
+    if (wsRef.current) {
+      wsRef.current.close();
     }
-  }, [service, t]);
 
-  useEffect(() => {
-    fetchStatus();
-    // Poll every 10 seconds
-    const interval = setInterval(fetchStatus, 10000);
-    return () => clearInterval(interval);
-  }, [fetchStatus]);
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('WebSocket Connected');
+      setError(null);
+      // Keep-alive ping
+      const pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send('ping');
+        }
+      }, 25000);
+      
+      ws.addEventListener('close', () => clearInterval(pingInterval), { once: true });
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg: WSStatusMessage = JSON.parse(event.data);
+        if (msg.type === 'status') {
+          setStatus(msg.data);
+          if (msg.data.ss.profile && PROFILES.includes(msg.data.ss.profile as Profile)) {
+            setLocalSsProfile(msg.data.ss.profile as Profile);
+          }
+          setIsInitialLoading(false);
+        }
+      } catch (e) {
+        // Silently ignore ping responses or malformed data
+      }
+    };
+
+    ws.onerror = () => {
+      setError(t.control.fetchError);
+      setIsInitialLoading(false);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket Closed. Retrying in 5s...');
+      setTimeout(connectWebSocket, 5000);
+    };
+  }, [baseUrl, t]);
 
   const handleApply = async () => {
     if (!status) return;
-    setLoading(true);
+    setIsSubmitting(true);
     setError(null);
     try {
-      const data = await service.apply({
+      // POST request to trigger the change; WS will push the update
+      await service.current.apply({
         wg0_enabled: status.wg0.active,
         ss_enabled: status.ss.active,
         ss_profile: localSsProfile
       });
-      setStatus(data);
     } catch (err: any) {
       setError(err.message || t.control.applyError);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -83,17 +115,19 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
       [iface]: { ...prev[iface], active: newState }
     } : null);
 
+    setIsSubmitting(true);
     try {
       const req = iface === 'wg0' ? { wg0_enabled: newState } : { ss_enabled: newState };
-      const data = await service.apply(req);
-      setStatus(data);
+      await service.current.apply(req);
     } catch (err: any) {
       setError(err.message);
-      fetchStatus(); // Revert on error
+      // Status will be eventually corrected by WebSocket push
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (!status && loading && !error) {
+  if (isInitialLoading && !status) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -108,7 +142,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span>{error}</span>
           <button 
-            onClick={fetchStatus}
+            onClick={() => connectWebSocket()}
             className="ml-auto text-sm underline hover:text-white"
           >
             {t.control.retry}
@@ -135,9 +169,10 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
             </div>
             <button
               onClick={() => toggleInterface('wg0')}
+              disabled={isSubmitting}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
                 status?.wg0.active ? 'bg-blue-600' : 'bg-gray-600'
-              }`}
+              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
                 status?.wg0.active ? 'translate-x-6' : 'translate-x-1'
@@ -170,9 +205,10 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
             </div>
              <button
               onClick={() => toggleInterface('ss')}
+              disabled={isSubmitting}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
                 status?.ss.active ? 'bg-emerald-600' : 'bg-gray-600'
-              }`}
+              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
                 status?.ss.active ? 'translate-x-6' : 'translate-x-1'
@@ -187,7 +223,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
                   {status?.ss.active ? t.control.active : t.control.inactive}
                 </span>
                 {status?.ss.profile && (
-                  <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300 ml-2 flex items-center gap-1.5">
+                  <span className="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300 ml-2 flex items-center gap-1.5 border border-gray-600">
                     <span>{t.control.current}</span>
                     <span className="flex items-center gap-1">
                       <span>{PROFILE_FLAGS[status.ss.profile as Profile]}</span>
@@ -207,7 +243,8 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
                   <select
                     value={localSsProfile}
                     onChange={(e) => setLocalSsProfile(e.target.value as Profile)}
-                    className="w-full appearance-none bg-gray-800 border border-gray-600 text-white py-2.5 px-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer"
+                    disabled={isSubmitting}
+                    className={`w-full appearance-none bg-gray-800 border border-gray-600 text-white py-2.5 px-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {PROFILES.map((p) => (
                       <option key={p} value={p}>
@@ -222,11 +259,11 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
                 
                 <button
                   onClick={handleApply}
-                  disabled={loading}
-                  className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/30"
+                  disabled={isSubmitting}
+                  className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/30 min-w-[100px] justify-center"
                 >
-                  {loading ? (
-                     <RefreshCcw className="w-4 h-4 animate-spin" />
+                  {isSubmitting ? (
+                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Save className="w-4 h-4" />
                   )}

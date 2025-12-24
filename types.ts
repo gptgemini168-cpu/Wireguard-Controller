@@ -11,6 +11,12 @@ export interface StatusResponse {
   ss: InterfaceStatus;
 }
 
+export interface WSStatusMessage {
+  type: 'status';
+  reason: 'initial' | 'api_apply' | 'api_wg0' | 'api_ss' | 'api_profile' | 'poll_change';
+  data: StatusResponse;
+}
+
 export interface WG0Request {
   enabled: boolean;
 }
