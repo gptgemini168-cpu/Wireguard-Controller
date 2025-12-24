@@ -5,6 +5,10 @@ import { WireGuardService } from '../services/wgApi';
 import { StatusResponse, Profile, Language, WSStatusMessage } from '../types';
 import { TRANSLATIONS } from '../constants/translations';
 
+// 在原生 ESM 環境下，不要使用 import 導入非 JS 資源
+// 直接定義路徑常量
+const BG_IMAGE_PATH = './bg.jpg';
+
 interface WireGuardControlProps {
   baseUrl: string;
   language: Language;
@@ -148,8 +152,8 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-100 text-xl font-bold">{t.control.interface} wg0</span>
-                  <span className="text-gray-400 text-xl">{t.control.wg0Title}</span>
+                  <span className="text-gray-100 text-xl font-bold">{t.control.wg0Title}</span>
+                  <span className="text-gray-400 text-xl"></span>
                 </div>
                 <p className="text-gray-500 text-sm mt-0.5">{t.control.primary}</p>
               </div>
@@ -181,8 +185,8 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-100 text-xl font-bold">{t.control.interface} ss</span>
-                  <span className="text-gray-400 text-xl">{t.control.ssTitle}</span>
+                  <span className="text-gray-100 text-xl font-bold">{t.control.ssTitle}</span>
+                  <span className="text-gray-400 text-xl"></span>
                 </div>
                 <p className="text-gray-500 text-sm mt-0.5">{t.control.secure}</p>
               </div>
@@ -257,7 +261,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
         <div 
           className="relative border border-gray-700/50 rounded-[24px] h-[320px] overflow-hidden group hover:border-orange-500/50 transition-all shadow-2xl"
           style={{
-            backgroundImage: 'url(bg.jpg)',
+            backgroundImage: `url(${BG_IMAGE_PATH})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -279,7 +283,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
         <div 
           className="relative border border-gray-700/50 rounded-[24px] h-[320px] overflow-hidden group hover:border-orange-500/50 transition-all shadow-2xl"
           style={{
-            backgroundImage: 'url(bg.jpg)',
+            backgroundImage: `url(${BG_IMAGE_PATH})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
