@@ -17,7 +17,6 @@ const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('zh-TW');
 
   const t = TRANSLATIONS[language];
@@ -136,7 +135,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center space-x-4">
             {/* Language Switcher in Header */}
-            <div className="hidden sm:flex bg-gray-900/50 rounded-lg p-1 space-x-1 border border-gray-700">
+            <div className="flex bg-gray-900/50 rounded-lg p-1 space-x-1 border border-gray-700">
               {LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}
@@ -152,35 +151,8 @@ const App: React.FC = () => {
                 </button>
               ))}
             </div>
-
-            <button
-              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors"
-              title={t.header.settings}
-            >
-              <Settings className="w-6 h-6" />
-            </button>
           </div>
         </div>
-
-        {/* Settings Dropdown */}
-        {isSettingsOpen && (
-          <div className="absolute top-16 right-4 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 animate-in fade-in slide-in-from-top-2 z-50">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              {t.header.apiUrl}
-            </label>
-            <input
-              type="text"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="https://gateway.ccg.tw"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              {t.header.apiDesc}
-            </p>
-          </div>
-        )}
       </header>
 
       {/* Main Content */}
