@@ -17,7 +17,8 @@ const App: React.FC = () => {
     
     // Simulate a brief delay for a better UX feel
     setTimeout(() => {
-      if (password === '8899') {
+      // Updated password requirement to user123
+      if (password === 'user123') {
         setIsLoggedIn(true);
         setLoginError(null);
       } else {
