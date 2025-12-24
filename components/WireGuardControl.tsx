@@ -257,22 +257,23 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
         {/* Shadow PC Card */}
         <div className="group relative rounded-[32px] h-[360px] overflow-hidden border border-gray-800 bg-gray-900 shadow-2xl transition-all hover:border-orange-500/50">
           <div 
-            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 transition-all duration-700 ease-out group-hover:scale-125 group-hover:opacity-0"
             style={{
               backgroundImage: `url(${BG_IMAGE_PATH})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           >
-            <div className="absolute inset-0 bg-gray-900/60 transition-opacity duration-500 group-hover:bg-gray-900/40" />
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-transparent to-transparent opacity-80" />
           </div>
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-            <h3 className="mb-4 text-4xl font-black tracking-tighter text-white drop-shadow-lg transition-colors group-hover:text-orange-400">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
+            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
               {t.control.shadowPc}
             </h3>
-            <div className="flex items-center space-x-3 rounded-full bg-black/40 px-6 py-2 backdrop-blur-md border border-white/10">
-              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl">
+              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
               <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
                 {t.control.comingSoon}
               </span>
@@ -283,22 +284,23 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
         {/* Eco App Card */}
         <div className="group relative rounded-[32px] h-[360px] overflow-hidden border border-gray-800 bg-gray-900 shadow-2xl transition-all hover:border-orange-500/50">
           <div 
-            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 transition-all duration-700 ease-out group-hover:scale-125 group-hover:opacity-0"
             style={{
               backgroundImage: `url(${BG_IMAGE_PATH})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           >
-            <div className="absolute inset-0 bg-gray-900/60 transition-opacity duration-500 group-hover:bg-gray-900/40" />
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-transparent to-transparent opacity-80" />
           </div>
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-            <h3 className="mb-4 text-4xl font-black tracking-tighter text-white drop-shadow-lg transition-colors group-hover:text-orange-400">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
+            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
               {t.control.ecoApp}
             </h3>
-            <div className="flex items-center space-x-3 rounded-full bg-black/40 px-6 py-2 backdrop-blur-md border border-white/10">
-              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl">
+              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
               <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
                 {t.control.comingSoon}
               </span>
