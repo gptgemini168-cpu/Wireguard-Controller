@@ -1,33 +1,33 @@
 import React, { useState } from 'react';
-import { Settings, Shield, Lock, Globe, Loader2, AlertCircle } from 'lucide-react';
+import { Settings, Shield, Lock, Loader2, AlertCircle } from 'lucide-react';
 import WireGuardControl from './components/WireGuardControl';
-import { WireGuardService } from './services/wgApi';
 
 const App: React.FC = () => {
   const [baseUrl, setBaseUrl] = useState<string>('https://gateway.ccg.tw');
-  const [isVerified, setIsVerified] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [connectError, setConnectError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const handleConnect = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
-    setConnectError(null);
+    setLoginError(null);
     
-    try {
-      const service = new WireGuardService(baseUrl);
-      // Attempt to fetch status to verify connection
-      await service.getStatus();
-      setIsVerified(true);
-    } catch (err: any) {
-      setConnectError('Connection failed. Please check the URL and try again.');
-    } finally {
+    // Simulate a brief delay for a better UX feel
+    setTimeout(() => {
+      if (password === '8899') {
+        setIsLoggedIn(true);
+        setLoginError(null);
+      } else {
+        setLoginError('Incorrect password. Please try again.');
+      }
       setVerifying(false);
-    }
+    }, 500);
   };
 
-  if (!isVerified) {
+  if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
         <div className="max-w-md w-full bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 animate-in fade-in zoom-in-95 duration-300">
@@ -38,31 +38,32 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
               WG Controller
             </h1>
-            <p className="text-gray-400 text-sm mt-2">Connect to your WireGuard Server</p>
+            <p className="text-gray-400 text-sm mt-2">Access Restricted</p>
           </div>
 
-          <form onSubmit={handleConnect} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Server API URL
+                Password
               </label>
               <div className="relative">
-                <Globe className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
                 <input
-                  type="text"
-                  value={baseUrl}
-                  onChange={(e) => setBaseUrl(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="https://gateway.ccg.tw"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full bg-gray-900 border ${loginError ? 'border-red-500' : 'border-gray-600'} rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                  placeholder="••••"
                   required
+                  autoFocus
                 />
               </div>
             </div>
 
-            {connectError && (
-              <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 flex items-start space-x-3">
+            {loginError && (
+              <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 flex items-start space-x-3 animate-in fade-in slide-in-from-top-1">
                 <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-red-200">{connectError}</span>
+                <span className="text-sm text-red-200">{loginError}</span>
               </div>
             )}
 
@@ -74,19 +75,19 @@ const App: React.FC = () => {
               {verifying ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Connecting...</span>
+                  <span>Verifying...</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-5 h-5" />
-                  <span>Connect</span>
+                  <span>Unlock</span>
                 </>
               )}
             </button>
           </form>
           
            <div className="mt-6 text-center text-xs text-gray-500">
-             Enter the URL of your WireGuard API endpoint.
+             Authorized personnel only.
            </div>
         </div>
       </div>
@@ -109,6 +110,7 @@ const App: React.FC = () => {
             <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
               className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors"
+              title="API Settings"
             >
               <Settings className="w-6 h-6" />
             </button>
@@ -117,7 +119,7 @@ const App: React.FC = () => {
 
         {/* Settings Dropdown */}
         {isSettingsOpen && (
-          <div className="absolute top-16 right-4 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 animate-in fade-in slide-in-from-top-2">
+          <div className="absolute top-16 right-4 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 animate-in fade-in slide-in-from-top-2 z-50">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               WireGuard API Base URL
             </label>
@@ -129,7 +131,7 @@ const App: React.FC = () => {
               placeholder="https://gateway.ccg.tw"
             />
             <p className="text-xs text-gray-500 mt-2">
-              Ensure the server allows CORS if running on a different origin.
+              Endpoint for WireGuard service control.
             </p>
           </div>
         )}
