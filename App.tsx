@@ -4,7 +4,7 @@ import WireGuardControl from './components/WireGuardControl';
 import { WireGuardService } from './services/wgApi';
 
 const App: React.FC = () => {
-  const [baseUrl, setBaseUrl] = useState<string>('https://127.0.0.1');
+  const [baseUrl, setBaseUrl] = useState<string>('https://gateway.ccg.tw');
   const [isVerified, setIsVerified] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
@@ -53,7 +53,7 @@ const App: React.FC = () => {
                   value={baseUrl}
                   onChange={(e) => setBaseUrl(e.target.value)}
                   className="w-full bg-gray-900 border border-gray-600 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder="https://127.0.0.1"
+                  placeholder="https://gateway.ccg.tw"
                   required
                 />
               </div>
@@ -126,7 +126,7 @@ const App: React.FC = () => {
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
               className="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="https://127.0.0.1"
+              placeholder="https://gateway.ccg.tw"
             />
             <p className="text-xs text-gray-500 mt-2">
               Ensure the server allows CORS if running on a different origin.
