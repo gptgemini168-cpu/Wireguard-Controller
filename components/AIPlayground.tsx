@@ -1,17 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { Sparkles, Wand2, Brain, ImagePlus, Loader2, Download, AlertTriangle } from 'lucide-react';
 import { generateImage, editImage, thinkingMode } from '../services/gemini';
-import { ImageSize } from '../types';
+import { ImageSize, Language } from '../types';
+import { TRANSLATIONS } from '../constants/translations';
 import ReactMarkdown from 'react-markdown';
 
 interface AIPlaygroundProps {
   hasApiKey: boolean;
   onConnectKey: () => void;
+  language: Language;
 }
 
 type Mode = 'generate' | 'edit' | 'think';
 
-const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) => {
+const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey, language }) => {
+  const t = TRANSLATIONS[language];
   const [mode, setMode] = useState<Mode>('generate');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +50,7 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
     }
     
     if (!prompt.trim()) {
-      setError("Please enter a prompt.");
+      setError(t.ai.promptReq);
       return;
     }
 
@@ -62,7 +65,7 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
         setGeneratedImages(images);
       } else if (mode === 'edit') {
         if (!selectedImagePreview) {
-          throw new Error("Please upload an image to edit.");
+          throw new Error(t.ai.imageReq);
         }
         const images = await editImage(selectedImagePreview, prompt);
         setGeneratedImages(images);
@@ -84,29 +87,29 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
         <div className="bg-amber-900/30 border border-amber-600/50 rounded-xl p-4 mb-6 flex items-start space-x-3">
           <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
           <div>
-            <h3 className="text-amber-200 font-medium">API Key Required</h3>
+            <h3 className="text-amber-200 font-medium">{t.ai.apiKeyReq}</h3>
             <p className="text-amber-400/80 text-sm mt-1">
-              To use Gemini AI features (Image Generation, Editing, and Advanced Reasoning), you must connect your Google API Key.
+              {t.ai.apiKeyDesc}
             </p>
             <button 
               onClick={onConnectKey}
               className="mt-3 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              Connect API Key
+              {t.ai.connectBtn}
             </button>
             <div className="mt-2 text-xs text-gray-500">
-               <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="underline hover:text-gray-300">Billing Information</a>
+               <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="underline hover:text-gray-300">{t.ai.billing}</a>
             </div>
           </div>
         </div>
       )}
 
       {/* Mode Selector */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {[
-          { id: 'generate', label: 'Generate Image', icon: Sparkles, desc: 'Gemini 3 Pro Image' },
-          { id: 'edit', label: 'Edit Image', icon: Wand2, desc: 'Gemini 2.5 Flash' },
-          { id: 'think', label: 'Deep Think', icon: Brain, desc: 'Gemini 3 Pro Reason' },
+          { id: 'generate', label: t.ai.generate, icon: Sparkles, desc: t.ai.genDesc },
+          { id: 'edit', label: t.ai.edit, icon: Wand2, desc: t.ai.editDesc },
+          { id: 'think', label: t.ai.think, icon: Brain, desc: t.ai.thinkDesc },
         ].map((m) => (
           <button
             key={m.id}
@@ -164,15 +167,15 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              {mode === 'think' ? 'What should I analyze?' : 'Describe your vision'}
+              {mode === 'think' ? t.ai.analyze : t.ai.vision}
             </label>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
-                mode === 'edit' ? "e.g., Add a retro filter, remove the background..." :
-                mode === 'generate' ? "e.g., A futuristic cyberpunk city with neon lights..." :
-                "e.g., Explain the implications of quantum computing on modern cryptography..."
+                mode === 'edit' ? t.ai.placeholderEdit :
+                mode === 'generate' ? t.ai.placeholderGen :
+                t.ai.placeholderThink
               }
               className="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none h-32 resize-none"
             />
@@ -180,7 +183,7 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
 
           {mode === 'generate' && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Image Resolution</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t.ai.resolution}</label>
               <div className="flex space-x-4">
                 {(['1K', '2K', '4K'] as ImageSize[]).map((size) => (
                   <label key={size} className="flex items-center space-x-2 cursor-pointer">
@@ -208,12 +211,12 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Processing...</span>
+                  <span>{t.ai.processing}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  <span>{mode === 'edit' ? 'Edit Image' : mode === 'generate' ? 'Generate' : 'Start Thinking'}</span>
+                  <span>{mode === 'edit' ? t.ai.edit : mode === 'generate' ? t.ai.generate : t.ai.think}</span>
                 </>
               )}
             </button>
@@ -235,7 +238,7 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
              <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 shadow-xl">
                <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center">
                  <Brain className="w-5 h-5 mr-2" />
-                 Thinking Result
+                 {t.ai.result}
                </h3>
                <div className="prose prose-invert prose-purple max-w-none">
                  <ReactMarkdown>{thinkingOutput}</ReactMarkdown>
@@ -255,7 +258,7 @@ const AIPlayground: React.FC<AIPlaygroundProps> = ({ hasApiKey, onConnectKey }) 
                         className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
                       >
                         <Download className="w-4 h-4" />
-                        <span>Download</span>
+                        <span>{t.ai.download}</span>
                       </a>
                     </div>
                  </div>

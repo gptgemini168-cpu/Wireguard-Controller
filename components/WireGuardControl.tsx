@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Power, RefreshCcw, Save, Server, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
 import { WireGuardService } from '../services/wgApi';
-import { StatusResponse, Profile } from '../types';
+import { StatusResponse, Profile, Language } from '../types';
+import { TRANSLATIONS } from '../constants/translations';
 
 interface WireGuardControlProps {
   baseUrl: string;
+  language: Language;
 }
 
 const PROFILES: Profile[] = ['tw', 'jp', 'hk', 'th'];
@@ -15,7 +17,8 @@ const PROFILE_FLAGS: Record<Profile, string> = {
   th: '🇹🇭'
 };
 
-const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
+const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }) => {
+  const t = TRANSLATIONS[language];
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,11 +41,11 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
         setLocalSsProfile(data.ss.profile as Profile);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch status');
+      setError(err.message || t.control.fetchError);
     } finally {
       setLoading(false);
     }
-  }, [service]);
+  }, [service, t]);
 
   useEffect(() => {
     fetchStatus();
@@ -56,7 +59,6 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
     setLoading(true);
     setError(null);
     try {
-      // Using the /v1/apply endpoint as recommended
       const data = await service.apply({
         wg0_enabled: status.wg0.active,
         ss_enabled: status.ss.active,
@@ -64,7 +66,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
       });
       setStatus(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to apply settings');
+      setError(err.message || t.control.applyError);
     } finally {
       setLoading(false);
     }
@@ -82,7 +84,6 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
     } : null);
 
     try {
-      // Use atomic apply for toggles as well to keep consistency
       const req = iface === 'wg0' ? { wg0_enabled: newState } : { ss_enabled: newState };
       const data = await service.apply(req);
       setStatus(data);
@@ -110,7 +111,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
             onClick={fetchStatus}
             className="ml-auto text-sm underline hover:text-white"
           >
-            Retry
+            {t.control.retry}
           </button>
         </div>
       )}
@@ -128,8 +129,8 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
                 <Server className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Interface wg0</h3>
-                <p className="text-sm text-gray-400">Primary Tunnel</p>
+                <h3 className="text-lg font-bold text-white">{t.control.interface} wg0</h3>
+                <p className="text-sm text-gray-400">{t.control.primary}</p>
               </div>
             </div>
             <button
@@ -146,7 +147,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
           <div className="flex items-center space-x-2">
             <div className={`w-2.5 h-2.5 rounded-full ${status?.wg0.active ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
             <span className="text-sm font-medium text-gray-300">
-              {status?.wg0.active ? 'Active' : 'Inactive'}
+              {status?.wg0.active ? t.control.active : t.control.inactive}
             </span>
           </div>
         </div>
@@ -163,8 +164,8 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
                 <Globe className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Interface ss</h3>
-                <p className="text-sm text-gray-400">Secure Tunnel</p>
+                <h3 className="text-lg font-bold text-white">{t.control.interface} ss</h3>
+                <p className="text-sm text-gray-400">{t.control.secure}</p>
               </div>
             </div>
              <button
@@ -183,11 +184,11 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
             <div className="flex items-center space-x-2">
                <div className={`w-2.5 h-2.5 rounded-full ${status?.ss.active ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
                 <span className="text-sm font-medium text-gray-300">
-                  {status?.ss.active ? 'Active' : 'Inactive'}
+                  {status?.ss.active ? t.control.active : t.control.inactive}
                 </span>
                 {status?.ss.profile && (
                   <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300 ml-2 flex items-center gap-1.5">
-                    <span>Current:</span>
+                    <span>{t.control.current}</span>
                     <span className="flex items-center gap-1">
                       <span>{PROFILE_FLAGS[status.ss.profile as Profile]}</span>
                       <span className="font-bold">{status.ss.profile.toUpperCase()}</span>
@@ -199,7 +200,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
 
             <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
               <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">
-                Configuration Profile
+                {t.control.profile}
               </label>
               <div className="flex space-x-3">
                 <div className="relative flex-grow">
@@ -210,7 +211,7 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
                   >
                     {PROFILES.map((p) => (
                       <option key={p} value={p}>
-                         {PROFILE_FLAGS[p]} {p.toUpperCase()} - {p} Node
+                         {PROFILE_FLAGS[p]} {p.toUpperCase()} - {p} {t.control.node}
                       </option>
                     ))}
                   </select>
@@ -229,17 +230,12 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl }) => {
                   ) : (
                     <Save className="w-4 h-4" />
                   )}
-                  <span>Apply</span>
+                  <span>{t.control.apply}</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Footer Info */}
-      <div className="text-center text-xs text-gray-600 mt-8">
-        API Base: <span className="font-mono text-gray-500">{baseUrl}</span>
       </div>
     </div>
   );

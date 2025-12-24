@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { Settings, Shield, Lock, Loader2, AlertCircle } from 'lucide-react';
 import WireGuardControl from './components/WireGuardControl';
+import { Language } from './types';
+import { TRANSLATIONS } from './constants/translations';
+
+const LANGUAGES: { code: Language; label: string; flag: string }[] = [
+  { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'th', label: 'ไทย', flag: '🇹🇭' },
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+];
 
 const App: React.FC = () => {
   const [baseUrl, setBaseUrl] = useState<string>('https://gateway.ccg.tw');
@@ -9,20 +18,21 @@ const App: React.FC = () => {
   const [verifying, setVerifying] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>('zh-TW');
+
+  const t = TRANSLATIONS[language];
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
     setLoginError(null);
     
-    // Simulate a brief delay for a better UX feel
     setTimeout(() => {
-      // Updated password requirement to user123
       if (password === 'user123') {
         setIsLoggedIn(true);
         setLoginError(null);
       } else {
-        setLoginError('Incorrect password. Please try again.');
+        setLoginError(t.login.error);
       }
       setVerifying(false);
     }, 500);
@@ -30,7 +40,24 @@ const App: React.FC = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+      <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+        <div className="absolute top-4 right-4 flex space-x-2">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => setLanguage(lang.code)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                language === lang.code 
+                  ? 'bg-blue-600 text-white shadow-lg' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              <span className="mr-1.5">{lang.flag}</span>
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
         <div className="max-w-md w-full bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 animate-in fade-in zoom-in-95 duration-300">
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
@@ -39,13 +66,13 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
               WG Controller
             </h1>
-            <p className="text-gray-400 text-sm mt-2">Access Restricted</p>
+            <p className="text-gray-400 text-sm mt-2">{t.login.restricted}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
+                {t.login.password}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
@@ -76,19 +103,19 @@ const App: React.FC = () => {
               {verifying ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Verifying...</span>
+                  <span>{t.login.verifying}</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-5 h-5" />
-                  <span>Unlock</span>
+                  <span>{t.login.unlock}</span>
                 </>
               )}
             </button>
           </form>
           
            <div className="mt-6 text-center text-xs text-gray-500">
-             Authorized personnel only.
+             {t.login.authOnly}
            </div>
         </div>
       </div>
@@ -108,10 +135,28 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Language Switcher in Header */}
+            <div className="hidden sm:flex bg-gray-900/50 rounded-lg p-1 space-x-1 border border-gray-700">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code)}
+                  className={`p-1.5 rounded-md transition-all flex items-center ${
+                    language === lang.code 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                  title={lang.label}
+                >
+                  <span className="text-sm">{lang.flag}</span>
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
               className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors"
-              title="API Settings"
+              title={t.header.settings}
             >
               <Settings className="w-6 h-6" />
             </button>
@@ -122,7 +167,7 @@ const App: React.FC = () => {
         {isSettingsOpen && (
           <div className="absolute top-16 right-4 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 animate-in fade-in slide-in-from-top-2 z-50">
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              WireGuard API Base URL
+              {t.header.apiUrl}
             </label>
             <input
               type="text"
@@ -132,18 +177,22 @@ const App: React.FC = () => {
               placeholder="https://gateway.ccg.tw"
             />
             <p className="text-xs text-gray-500 mt-2">
-              Endpoint for WireGuard service control.
+              {t.header.apiDesc}
             </p>
           </div>
         )}
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-in fade-in zoom-in-95 duration-300">
-            <WireGuardControl baseUrl={baseUrl} />
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <section className="animate-in fade-in zoom-in-95 duration-300">
+            <WireGuardControl baseUrl={baseUrl} language={language} />
+        </section>
       </main>
+      
+      <footer className="py-8 text-center text-gray-600 text-xs border-t border-gray-800">
+        &copy; {new Date().getFullYear()} WireGuard Dashboard &bull; All rights reserved.
+      </footer>
     </div>
   );
 };

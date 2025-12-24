@@ -1,4 +1,5 @@
 export type Profile = 'tw' | 'jp' | 'hk' | 'th';
+export type Language = 'zh-TW' | 'ja' | 'th' | 'en';
 
 export interface InterfaceStatus {
   active: boolean;
