@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Power, RefreshCcw, Save, Server, Globe, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { WireGuardService } from '../services/wgApi';
 import { StatusResponse, Profile, Language, WSStatusMessage } from '../types';
 import { TRANSLATIONS } from '../constants/translations';
 
-// 在 Cloudflare Pages 或多數靜態託管平台中，public 資料夾的內容會被部署到根目錄
-// 因此使用絕對路徑 /bg.jpg 是最穩妥的做法
-const BG_IMAGE_PATH = '/bg.jpg';
+// Update background image path to the hosted URL
+const BG_IMAGE_PATH = 'https://gptgemini168-cpu.github.io/Wireguard-Controller/bg.jpg';
 
 interface WireGuardControlProps {
   baseUrl: string;
@@ -257,45 +255,53 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
       {/* Coming Soon Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
         {/* Shadow PC Card */}
-        <div 
-          className="relative border border-gray-800 rounded-[32px] h-[360px] overflow-hidden group hover:border-orange-500/50 transition-all shadow-2xl"
-          style={{
-            backgroundImage: `url(${BG_IMAGE_PATH})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
-          {/* Glassmorphism Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1117] via-transparent to-transparent group-hover:bg-[#0d1117]/60 transition-all duration-500 flex flex-col items-center justify-center p-8">
-            <div className="backdrop-blur-2xl bg-black/40 border border-white/10 rounded-[40px] p-12 w-full max-w-sm flex flex-col items-center shadow-2xl transform transition-all duration-700 group-hover:scale-105 group-hover:-translate-y-2">
-              <h3 className="text-white text-4xl font-black tracking-tighter mb-4 text-center group-hover:text-orange-400 transition-colors">{t.control.shadowPc}</h3>
-              <div className="flex items-center space-x-4">
-                <div className="h-[2px] w-12 bg-orange-600/50"></div>
-                <p className="text-orange-500 text-xs font-black tracking-[0.5em] uppercase">{t.control.comingSoon}</p>
-                <div className="h-[2px] w-12 bg-orange-600/50"></div>
-              </div>
+        <div className="group relative rounded-[32px] h-[360px] overflow-hidden border border-gray-800 bg-gray-900 shadow-2xl transition-all hover:border-orange-500/50">
+          <div 
+            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage: `url(${BG_IMAGE_PATH})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="absolute inset-0 bg-gray-900/60 transition-opacity duration-500 group-hover:bg-gray-900/40" />
+          </div>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+            <h3 className="mb-4 text-4xl font-black tracking-tighter text-white drop-shadow-lg transition-colors group-hover:text-orange-400">
+              {t.control.shadowPc}
+            </h3>
+            <div className="flex items-center space-x-3 rounded-full bg-black/40 px-6 py-2 backdrop-blur-md border border-white/10">
+              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
+                {t.control.comingSoon}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Eco App Card */}
-        <div 
-          className="relative border border-gray-800 rounded-[32px] h-[360px] overflow-hidden group hover:border-orange-500/50 transition-all shadow-2xl"
-          style={{
-            backgroundImage: `url(${BG_IMAGE_PATH})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
-          {/* Glassmorphism Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1117] via-transparent to-transparent group-hover:bg-[#0d1117]/60 transition-all duration-500 flex flex-col items-center justify-center p-8">
-            <div className="backdrop-blur-2xl bg-black/40 border border-white/10 rounded-[40px] p-12 w-full max-w-sm flex flex-col items-center shadow-2xl transform transition-all duration-700 group-hover:scale-105 group-hover:-translate-y-2">
-              <h3 className="text-white text-4xl font-black tracking-tighter mb-4 text-center group-hover:text-orange-400 transition-colors">{t.control.ecoApp}</h3>
-              <div className="flex items-center space-x-4">
-                <div className="h-[2px] w-12 bg-orange-600/50"></div>
-                <p className="text-orange-500 text-xs font-black tracking-[0.5em] uppercase">{t.control.comingSoon}</p>
-                <div className="h-[2px] w-12 bg-orange-600/50"></div>
-              </div>
+        <div className="group relative rounded-[32px] h-[360px] overflow-hidden border border-gray-800 bg-gray-900 shadow-2xl transition-all hover:border-orange-500/50">
+          <div 
+            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage: `url(${BG_IMAGE_PATH})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="absolute inset-0 bg-gray-900/60 transition-opacity duration-500 group-hover:bg-gray-900/40" />
+          </div>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+            <h3 className="mb-4 text-4xl font-black tracking-tighter text-white drop-shadow-lg transition-colors group-hover:text-orange-400">
+              {t.control.ecoApp}
+            </h3>
+            <div className="flex items-center space-x-3 rounded-full bg-black/40 px-6 py-2 backdrop-blur-md border border-white/10">
+              <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
+                {t.control.comingSoon}
+              </span>
             </div>
           </div>
         </div>
