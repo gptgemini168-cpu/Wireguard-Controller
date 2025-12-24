@@ -269,10 +269,10 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
           </div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
-            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] transform transition-transform duration-700 ease-out translate-y-32 group-hover:translate-y-0">
               {t.control.shadowPc}
             </h3>
-            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl">
+            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl transition-all duration-700 ease-out opacity-0 translate-y-32 group-hover:opacity-100 group-hover:translate-y-0">
               <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
               <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
                 {t.control.comingSoon}
@@ -296,10 +296,10 @@ const WireGuardControl: React.FC<WireGuardControlProps> = ({ baseUrl, language }
           </div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
-            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+            <h3 className="mb-6 text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] transform transition-transform duration-700 ease-out translate-y-32 group-hover:translate-y-0">
               {t.control.ecoApp}
             </h3>
-            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl">
+            <div className="flex items-center space-x-3 rounded-full bg-black/60 px-6 py-2 backdrop-blur-md border border-white/10 shadow-xl transition-all duration-700 ease-out opacity-0 translate-y-32 group-hover:opacity-100 group-hover:translate-y-0">
               <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
               <span className="text-xs font-bold tracking-[0.3em] text-orange-400 uppercase">
                 {t.control.comingSoon}
